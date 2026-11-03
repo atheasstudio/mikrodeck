@@ -35,6 +35,23 @@ impl Abertos {
         vista
     }
 
+    /// Algum programa aberto tem o nome começando por um destes prefixos (sem
+    /// diferença de maiúscula). Serve para a pausa automática.
+    pub fn algum_comeca_com(&self, prefixos: &[String]) -> bool {
+        let prefixos: Vec<String> = prefixos
+            .iter()
+            .map(|p| p.trim().to_lowercase())
+            .filter(|p| !p.is_empty())
+            .collect();
+        if prefixos.is_empty() {
+            return false;
+        }
+        self.0
+            .read()
+            .map(|abertos| comeca_com_algum(&abertos, &prefixos))
+            .unwrap_or(false)
+    }
+
     /// Diz se o programa daquele caminho está aberto. Compara só o nome do
     /// arquivo: o caminho configurado pode ser um atalho, e o processo que sobe
     /// tem outro caminho.
@@ -48,6 +65,14 @@ impl Abertos {
             .map(|abertos| pistas.iter().any(|n| abertos.contains(n)))
             .unwrap_or(false)
     }
+}
+
+/// Algum nome aberto (minúsculas, com `.exe`) começa com um dos prefixos
+/// (minúsculas). Usado pela pausa automática.
+pub(crate) fn comeca_com_algum(abertos: &HashSet<String>, prefixos: &[String]) -> bool {
+    abertos
+        .iter()
+        .any(|nome| prefixos.iter().any(|p| nome.starts_with(p.as_str())))
 }
 
 /// Nomes de executável que este caminho pode ter virado, em minúsculas e com
@@ -177,6 +202,16 @@ fn processos_abertos() -> HashSet<String> {
 
 #[cfg(test)]
 mod testes {
+    #[test]
+    fn pausa_automatica_casa_pelo_comeco_do_nome() {
+        let abertos: std::collections::HashSet<String> =
+            ["ableton live 12 suite.exe".to_string(), "explorer.exe".to_string()].into();
+        let lista = vec!["ableton live".to_string()];
+        assert!(super::comeca_com_algum(&abertos, &lista));
+        let outra = vec!["constella".to_string()];
+        assert!(!super::comeca_com_algum(&abertos, &outra));
+    }
+
     #[test]
     fn app_do_menu_iniciar_da_pistas_de_processo() {
         // O identificador nao tem o nome do processo em lugar nenhum obvio, e

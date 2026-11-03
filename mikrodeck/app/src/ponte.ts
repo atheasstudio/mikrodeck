@@ -47,6 +47,7 @@ function configDemo(): Config {
       luz: { modo: "respiracao", ritmo: "medio", cor: "auto" },
     },
     ao_apertar: "eco",
+    pausar_com: ["ableton live", "maschine 2", "constella"],
   };
 }
 

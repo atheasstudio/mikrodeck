@@ -110,6 +110,8 @@ Para produzir música:
 
 O mesmo liga e desliga existe como ação, para colocar em qualquer pad ou botão.
 
+**Pausa automática.** Abriu o Ableton Live, o Maschine 2 ou o Constella, o MikroDeck pausa sozinho; fechou todos, ele volta. A lista fica em `pausar_com` no arquivo de configuração (começo do nome do executável, sem diferença de maiúscula; lista vazia desliga). Pausou pelo botão, só o botão retoma.
+
 ---
 
 ## Tudo que ele faz

@@ -34,6 +34,12 @@ pub struct Estado {
     /// Pausado, o aparelho apaga e nenhum controle executa ação. Serve para o
     /// voltar a usar o Mikro como Maschine sem fechar o MikroDeck.
     pausado: bool,
+    /// A pausa veio de um programa da lista `pausar_com`, não do botão: só ela é
+    /// desfeita sozinha quando o programa fecha.
+    pausa_automatica: bool,
+    /// Algum programa da lista estava aberto na última varredura. A pausa só muda
+    /// quando isso muda, para o botão continuar mandando no meio do caminho.
+    programa_aberto: bool,
     /// Quanto da touch strip acender, de 0 a 1. `None` deixa apagada.
     nivel_strip: Option<f32>,
 }
@@ -45,6 +51,8 @@ impl Estado {
             pagina: 0,
             apertados: HashSet::new(),
             pausado: false,
+            pausa_automatica: false,
+            programa_aberto: false,
             nivel_strip: None,
         }
     }
@@ -201,8 +209,33 @@ impl Estado {
         self.pausado
     }
 
+    /// Diz ao estado se algum programa da lista `pausar_com` está aberto.
+    /// Abriu: pausa (se não estava). Fechou: retoma, só se a pausa foi dele.
+    /// Devolve `Reacao::Pausado` quando a pausa muda, `Reacao::Nada` no resto.
+    pub fn programa_de_musica(&mut self, aberto: bool) -> Reacao {
+        if aberto == self.programa_aberto {
+            return Reacao::Nada;
+        }
+        self.programa_aberto = aberto;
+        if aberto && !self.pausado {
+            self.pausado = true;
+            self.pausa_automatica = true;
+            self.apertados.clear();
+            return Reacao::Pausado(true);
+        }
+        if !aberto && self.pausado && self.pausa_automatica {
+            self.pausado = false;
+            self.pausa_automatica = false;
+            self.apertados.clear();
+            return Reacao::Pausado(false);
+        }
+        Reacao::Nada
+    }
+
     fn aplicar_efeito(&mut self, efeito: EfeitoNoEstado) -> Reacao {
         if efeito == EfeitoNoEstado::PausarRetomar {
+            // O botão manda: a pausa dele não é desfeita quando um programa fecha.
+            self.pausa_automatica = false;
             self.pausado = !self.pausado;
             self.apertados.clear();
             return Reacao::Pausado(self.pausado);
@@ -439,6 +472,7 @@ mod testes {
             home_assistant: Default::default(),
             descanso: Default::default(),
             ao_apertar: Default::default(),
+            pausar_com: Vec::new(),
         }
     }
 
@@ -451,6 +485,38 @@ mod testes {
         assert!(e.esta_pausado());
         let r = e.processar(&Evento::Botao { nome: "maschine", apertado: true });
         assert_eq!(r, Reacao::Pausado(false));
+        assert!(!e.esta_pausado());
+    }
+
+    #[test]
+    fn programa_de_musica_pausa_e_retoma_sozinho() {
+        let mut e = Estado::novo(config_de_teste());
+        assert_eq!(e.programa_de_musica(false), Reacao::Nada);
+        assert_eq!(e.programa_de_musica(true), Reacao::Pausado(true));
+        assert!(e.esta_pausado());
+        assert_eq!(e.programa_de_musica(true), Reacao::Nada, "continua aberto");
+        assert_eq!(e.programa_de_musica(false), Reacao::Pausado(false));
+        assert!(!e.esta_pausado());
+    }
+
+    #[test]
+    fn pausa_do_botao_nao_e_desfeita_pelo_programa() {
+        let mut e = Estado::novo(config_de_teste());
+        e.processar(&Evento::Botao { nome: "maschine", apertado: true });
+        assert!(e.esta_pausado());
+        assert_eq!(e.programa_de_musica(true), Reacao::Nada, "já estava pausado");
+        assert_eq!(e.programa_de_musica(false), Reacao::Nada, "a pausa é do botão");
+        assert!(e.esta_pausado());
+    }
+
+    #[test]
+    fn botao_retoma_com_o_programa_aberto() {
+        let mut e = Estado::novo(config_de_teste());
+        e.programa_de_musica(true);
+        e.processar(&Evento::Botao { nome: "maschine", apertado: true });
+        assert!(!e.esta_pausado(), "o botão retoma mesmo com o programa aberto");
+        assert_eq!(e.programa_de_musica(true), Reacao::Nada, "não pausa de novo sozinho");
+        assert_eq!(e.programa_de_musica(false), Reacao::Nada);
         assert!(!e.esta_pausado());
     }
 

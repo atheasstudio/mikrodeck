@@ -181,6 +181,8 @@ export interface Config {
   /** O que a luz faz ao soltar um pad. */
   ao_apertar: AoApertar;
   descanso: Descanso;
+  /** Começo do nome dos programas que pausam o MikroDeck sozinhos. */
+  pausar_com?: string[];
 }
 
 /** Texto que corre na tela do aparelho depois de um tempo parado. */
