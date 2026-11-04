@@ -45,11 +45,14 @@
       "nsis": {
         "headerImage": "instalador/cabecalho.bmp",
         "sidebarImage": "instalador/lateral.bmp",
-        "installerIcon": "icons/icon.ico"
+        "installerIcon": "icons/icon.ico",
+        "languages": ["French", "English"],
+        "displayLanguageSelector": true
       },
       "wix": {
         "bannerPath": "instalador/faixa.bmp",
-        "dialogImagePath": "instalador/abertura.bmp"
+        "dialogImagePath": "instalador/abertura.bmp",
+        "language": ["fr-FR", "en-US"]
       }
     }
   }

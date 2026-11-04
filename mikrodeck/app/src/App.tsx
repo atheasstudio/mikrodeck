@@ -22,6 +22,7 @@ import { PainelControle } from "./PainelControle";
 import { Configuracoes } from "./Configuracoes";
 import type { NomeCor } from "./cores";
 import { rotuloDoBotao, type Config, type Controle, type Situacao } from "./tipos";
+import { t, definirIdioma } from "./idioma";
 import "./App.css";
 
 export default function App() {
@@ -110,10 +111,12 @@ export default function App() {
     }
   }, []);
 
+  if (config) definirIdioma(config.idioma);
+
   if (!config) {
     return (
       <div className="flex h-screen items-center justify-center text-sm text-neutral-500">
-        Carregando…
+        {t("Carregando…")}
       </div>
     );
   }
@@ -236,7 +239,7 @@ export default function App() {
 
   /** Nome amigável de uma posição, para o texto do modal. */
   function ondeFica(s: Selecao): string {
-    return s.tipo === "pad" ? `pad ${s.pad}` : rotuloDoBotao(s.id);
+    return s.tipo === "pad" ? t("pad {n}", { n: s.pad }) : rotuloDoBotao(s.id);
   }
 
   /**
@@ -269,14 +272,14 @@ export default function App() {
   function novaPagina() {
     const paginas = [
       ...config!.paginas,
-      { nome: `Página ${config!.paginas.length + 1}`, pads: {}, botoes: {} },
+      { nome: t("Página {n}", { n: config!.paginas.length + 1 }), pads: {}, botoes: {} },
     ];
     salvar({ ...config!, paginas });
     setPagina(paginas.length - 1);
   }
 
   function renomearPagina(i: number) {
-    const nome = prompt("Nome da página", config!.paginas[i].nome);
+    const nome = prompt(t("Nome da página"), config!.paginas[i].nome);
     if (nome === null) return;
     const paginas = config!.paginas.map((p, j) =>
       j === i ? { ...p, nome: nome.trim() || p.nome } : p,
@@ -286,10 +289,10 @@ export default function App() {
 
   function apagarPagina(i: number) {
     if (config!.paginas.length === 1) {
-      alert("Não dá para apagar a única página.");
+      alert(t("Não dá para apagar a única página."));
       return;
     }
-    if (!confirm(`Apagar a página "${config!.paginas[i].nome}"?`)) return;
+    if (!confirm(t("Apagar a página \"{nome}\"?", { nome: config!.paginas[i].nome }))) return;
     const paginas = config!.paginas.filter((_, j) => j !== i);
     salvar({ ...config!, paginas });
     if (pagina >= paginas.length) trocarPagina(paginas.length - 1);
@@ -298,7 +301,7 @@ export default function App() {
   function duplicarPagina(i: number) {
     const copia = {
       ...config!.paginas[i],
-      nome: `${config!.paginas[i].nome} (cópia)`,
+      nome: `${config!.paginas[i].nome} ${t("(cópia)")}`,
     };
     const paginas = [...config!.paginas];
     paginas.splice(i + 1, 0, copia);
@@ -311,7 +314,7 @@ export default function App() {
         {/* Abas de páginas */}
         <div className="flex flex-wrap items-center gap-2 border-b border-neutral-200 px-4 py-2.5 dark:border-neutral-700">
           <span className="mr-1 text-[13px] text-neutral-600 dark:text-neutral-400">
-            Páginas
+            {t("Páginas")}
           </span>
           {config.paginas.map((p, i) => (
             <button
@@ -333,8 +336,8 @@ export default function App() {
           <div className="relative">
             <button
               onClick={() => setMostrarProntas((v) => !v)}
-              title="Nova página"
-              aria-label="Nova página"
+              title={t("Nova página")}
+              aria-label={t("Nova página")}
               className="flex h-7 w-7 items-center justify-center rounded-lg border border-neutral-300 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-700"
             >
               <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round">
@@ -355,9 +358,9 @@ export default function App() {
                     }}
                     className="block w-full border-b border-neutral-200 px-3 py-2 text-left hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-700"
                   >
-                    <span className="block text-[13px] font-medium">Vazia</span>
+                    <span className="block text-[13px] font-medium">{t("Vazia")}</span>
                     <span className="block text-xs text-neutral-500">
-                      Uma página em branco, para você montar do jeito que quiser.
+                      {t("Uma página em branco, para você montar do jeito que quiser.")}
                     </span>
                   </button>
                   {prontas.map((p) => (
@@ -375,9 +378,9 @@ export default function App() {
                       }}
                       className="block w-full border-b border-neutral-200 px-3 py-2 text-left last:border-0 hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-700"
                     >
-                      <span className="block text-[13px] font-medium">{p.nome}</span>
+                      <span className="block text-[13px] font-medium">{t(p.nome)}</span>
                       <span className="block text-xs text-neutral-500">
-                        {p.descricao}
+                        {t(p.descricao)}
                       </span>
                     </button>
                   ))}
@@ -386,19 +389,19 @@ export default function App() {
             )}
           </div>
           <span className="hidden text-xs text-neutral-500 xl:inline">
-            botão direito na aba para renomear ou apagar
+            {t("botão direito na aba para renomear ou apagar")}
           </span>
 
           <span className="flex-1" />
 
-          {salvando && <span className="text-xs text-neutral-500">salvando…</span>}
+          {salvando && <span className="text-xs text-neutral-500">{t("salvando…")}</span>}
           {pausado && (
             <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[12px] text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
-              Desligado
+              {t("Desligado")}
             </span>
           )}
           <label className="flex items-center gap-2 text-[13px] text-neutral-600 dark:text-neutral-400">
-            Brilho
+            {t("Brilho")}
             <input
               type="range"
               min={0}
@@ -412,8 +415,8 @@ export default function App() {
           </label>
           <button
             onClick={() => setMostrarConfig(true)}
-            title="Configurações"
-            aria-label="Configurações"
+            title={t("Configurações")}
+            aria-label={t("Configurações")}
             className="flex h-7 w-7 items-center justify-center rounded-lg border border-neutral-300 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-700"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.6}>
@@ -447,8 +450,8 @@ export default function App() {
                 className="flex items-center gap-2 text-xs text-neutral-500"
                 title={
                   situacao === "conectado"
-                    ? "Mikro MK3 conectado"
-                    : "Procurando o aparelho"
+                    ? t("Mikro MK3 conectado")
+                    : t("Procurando o aparelho")
                 }
               >
                 <span
@@ -456,11 +459,10 @@ export default function App() {
                     situacao === "conectado" ? "bg-green-500" : "bg-red-500"
                   }`}
                 />
-                {situacao === "conectado" ? "Conectado" : "Procurando…"}
+                {situacao === "conectado" ? t("Conectado") : t("Procurando…")}
               </span>
               <p className="text-center text-xs text-neutral-500">
-                Clique em qualquer pad ou botão para configurar. O que você aperta
-                no aparelho acende aqui também.
+                {t("Clique em qualquer pad ou botão para configurar. O que você aperta no aparelho acende aqui também.")}
               </p>
             </div>
           </div>
@@ -469,18 +471,16 @@ export default function App() {
             {!selecao ? (
               <div className="flex h-full min-h-40 flex-col justify-center gap-3 text-sm text-neutral-500">
                 <p className="font-medium text-neutral-700 dark:text-neutral-300">
-                  Página {pagina + 1}: {paginaAtual?.nome}
+                  {t("Página {n}", { n: pagina + 1 })}: {paginaAtual?.nome}
                 </p>
                 <p>
-                  {Object.keys(paginaAtual?.pads ?? {}).length} de 16 pads
-                  programados
+                  {t("{n} de 16 pads programados", { n: Object.keys(paginaAtual?.pads ?? {}).length })}
                   {Object.keys(paginaAtual?.botoes ?? {}).length === 1
-                    ? ", 1 botão."
-                    : `, ${Object.keys(paginaAtual?.botoes ?? {}).length} botões.`}
+                    ? t(", 1 botão.")
+                    : t(", {n} botões.", { n: Object.keys(paginaAtual?.botoes ?? {}).length })}
                 </p>
                 <p className="text-xs leading-relaxed">
-                  Clique num pad ou botão do desenho ao lado para escolher o que
-                  ele faz, o nome que aparece na tela e a cor.
+                  {t("Clique num pad ou botão do desenho ao lado para escolher o que ele faz, o nome que aparece na tela e a cor.")}
                 </p>
               </div>
             ) : (
@@ -512,33 +512,33 @@ export default function App() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="mb-2 text-base font-medium">
-              O {ondeFica(conflito.destino)} já está ocupado
+              {t("{onde} já está ocupado", { onde: ondeFica(conflito.destino) })}
             </h2>
             <p className="mb-1 text-[13px] text-neutral-600 dark:text-neutral-400">
-              Lá está <strong>{controleDe(conflito.destino)?.nome || "sem nome"}</strong>.
+              {t("Lá está")} <strong>{controleDe(conflito.destino)?.nome || t("sem nome")}</strong>.
             </p>
             <p className="mb-4 text-[13px] text-neutral-600 dark:text-neutral-400">
-              Você arrastou <strong>{controleDe(conflito.origem)?.nome || "sem nome"}</strong>{" "}
-              do {ondeFica(conflito.origem)}.
+              {t("Você arrastou")} <strong>{controleDe(conflito.origem)?.nome || t("sem nome")}</strong>{" "}
+              {t("de")} {ondeFica(conflito.origem)}.
             </p>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={substituir}
                 className="rounded-lg bg-sky-600 px-3 py-1.5 text-[13px] text-white hover:bg-sky-700"
               >
-                Substituir
+                {t("Substituir")}
               </button>
               <button
                 onClick={trocarDeLugar}
                 className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] hover:bg-neutral-50 dark:border-neutral-600 dark:hover:bg-neutral-700"
               >
-                Trocar de lugar
+                {t("Trocar de lugar")}
               </button>
               <button
                 onClick={() => setConflito(null)}
                 className="rounded-lg px-3 py-1.5 text-[13px] text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700"
               >
-                Cancelar
+                {t("Cancelar")}
               </button>
             </div>
           </div>
@@ -553,16 +553,16 @@ export default function App() {
           onClick={(e) => e.stopPropagation()}
         >
           <ItemMenu onClick={() => { renomearPagina(menuPagina.i); setMenuPagina(null); }}>
-            Renomear
+            {t("Renomear")}
           </ItemMenu>
           <ItemMenu onClick={() => { duplicarPagina(menuPagina.i); setMenuPagina(null); }}>
-            Duplicar
+            {t("Duplicar")}
           </ItemMenu>
           <ItemMenu
             perigo
             onClick={() => { apagarPagina(menuPagina.i); setMenuPagina(null); }}
           >
-            Apagar
+            {t("Apagar")}
           </ItemMenu>
         </div>
       )}

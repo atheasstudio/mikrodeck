@@ -10,6 +10,7 @@
 
 import { useRef, useState } from "react";
 import { CORES, type NomeCor } from "./cores";
+import { t } from "./idioma";
 
 /**
  * O eixo vertical que a tela e o knob dividem.
@@ -291,7 +292,7 @@ export function Aparelho({
         setAlvo(null);
       }}
       role="img"
-      aria-label="Maschine Mikro MK3 com o MikroDeck"
+      aria-label={t("Maschine Mikro MK3 com o MikroDeck")}
     >
       <rect x="0" y="0" width="960" height="536" rx="18" fill="#2C2C2A" />
 
@@ -300,7 +301,7 @@ export function Aparelho({
         onClick={onClicarTela}
         className={onClicarTela ? "cursor-pointer" : undefined}
         role={onClicarTela ? "button" : undefined}
-        aria-label="Tela do aparelho"
+        aria-label={t("Tela do aparelho")}
       >
         <rect
           x={KNOB_X - TELA_L / 2}
@@ -413,7 +414,7 @@ export function Aparelho({
             style={estiloArrasto({ tipo: "botao", id: b.id })}
             className="cursor-pointer"
             role="button"
-            aria-label={`Botão ${b.rotulo}${programado ? `: ${programado}` : ""}`}
+            aria-label={`${t("Botão")} ${t(b.rotulo)}${programado ? `: ${programado}` : ""}`}
           >
             <rect
               x={b.x}

@@ -155,7 +155,7 @@ impl Compositor {
             // relance; o resto fica pequeno embaixo.
             Cena::Pagina { numero, total, nome } => {
                 tela.texto_ajustado(4, nome, 2);
-                let posicao = format!("{numero} de {total}");
+                let posicao = format!("{numero}/{total}");
                 tela.texto_centrado(24, &posicao);
             }
             Cena::Segurando { nome } => {

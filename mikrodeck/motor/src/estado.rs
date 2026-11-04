@@ -209,6 +209,11 @@ impl Estado {
         self.pausado
     }
 
+    /// Pausado por um programa da lista: o aparelho fica solto para ele.
+    pub fn em_pausa_automatica(&self) -> bool {
+        self.pausado && self.pausa_automatica
+    }
+
     /// Diz ao estado se algum programa da lista `pausar_com` está aberto.
     /// Abriu: pausa (se não estava). Fechou: retoma, só se a pausa foi dele.
     /// Devolve `Reacao::Pausado` quando a pausa muda, `Reacao::Nada` no resto.
@@ -473,6 +478,7 @@ mod testes {
             descanso: Default::default(),
             ao_apertar: Default::default(),
             pausar_com: Vec::new(),
+            idioma: "fr".into(),
         }
     }
 

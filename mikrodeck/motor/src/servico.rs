@@ -88,6 +88,25 @@ impl Servico {
                     // fora, e o primeiro toque de cada pad voltaria ao disco.
                     let mut tocador = crate::som::Tocador::novo();
                     while rodando.load(Ordering::Relaxed) {
+                        // Pausa automática: o aparelho fica com o outro programa
+                        // até ele fechar. Nem tenta abrir enquanto isso.
+                        let reacao = {
+                            let mut e = travar(&estado);
+                            if e.em_pausa_automatica() {
+                                let aberto = abertos.algum_comeca_com(&e.config().pausar_com);
+                                Some(e.programa_de_musica(aberto))
+                            } else {
+                                None
+                            }
+                        };
+                        match reacao {
+                            Some(Reacao::Pausado(false)) => avisar(Aviso::Pausado(false)),
+                            Some(_) => {
+                                thread::sleep(Duration::from_millis(800));
+                                continue;
+                            }
+                            None => {}
+                        }
                         match Aparelho::abrir(30) {
                             Ok((aparelho, eventos)) => {
                                 *situacao.lock().unwrap_or_else(|e| e.into_inner()) = Situacao::Conectado;
@@ -258,9 +277,16 @@ fn laco_de_eventos<F>(
                     if pausado {
                         tocador.cortar_tudo();
                         apagar_tela(aparelho);
+                        avisar(Aviso::Pausado(true));
+                        // Solta o aparelho de verdade: o Constella (ou o
+                        // Maschine 2) só consegue abrir o Mikro se ninguém mais
+                        // estiver com ele. O supervisor só reabre quando o
+                        // programa fechar. A espera deixa o quadro apagado sair.
+                        thread::sleep(Duration::from_millis(150));
+                        return;
                     } else {
                         compositor.avisar(crate::render::composicao::Cena::Aviso {
-                            titulo: "Ativo".into(),
+                            titulo: palavra_da_tela(&travar(estado).config().idioma, "Ativo").into(),
                             barra: None,
                         });
                     }
@@ -321,8 +347,9 @@ fn laco_de_eventos<F>(
                     let mut e = travar(estado);
                     let novo = (fracao * 3.0).round() as u8;
                     e.definir_brilho(novo);
+                    let palavra = palavra_da_tela(&e.config().idioma, "Brilho");
                     compositor.avisar(crate::render::composicao::Cena::Aviso {
-                        titulo: format!("Brilho {novo}"),
+                        titulo: format!("{palavra} {novo}"),
                         barra: Some(novo as f32 / 3.0),
                     });
                 }
@@ -498,7 +525,7 @@ fn laco_de_eventos<F>(
                     apagar_tela(aparelho);
                 } else {
                     compositor.avisar(crate::render::composicao::Cena::Aviso {
-                        titulo: "Ativo".into(),
+                        titulo: palavra_da_tela(&travar(estado).config().idioma, "Ativo").into(),
                         barra: None,
                     });
                 }
@@ -687,9 +714,10 @@ fn girar_knob<F>(
             let atual = e.config().brilho.min(3) as i16;
             let novo = (atual + delta as i16).clamp(0, 3) as u8;
             e.definir_brilho(novo);
+            let palavra = palavra_da_tela(&e.config().idioma, "Brilho");
             drop(e);
             compositor.avisar(Cena::Aviso {
-                titulo: format!("Brilho {novo}"),
+                titulo: format!("{palavra} {novo}"),
                 barra: Some(novo as f32 / 3.0),
             });
         }
@@ -768,4 +796,16 @@ fn repintar(
 ) {
     let e = travar(estado);
     aparelho.pintar(|f| e.pintar_com(f, abertos, luz, dormindo));
+}
+
+/// As poucas palavras que o motor escreve na tela do aparelho, no idioma da
+/// config. O resto da tela é o que a pessoa digitou (nomes de página e de pad).
+fn palavra_da_tela(idioma: &str, pt: &'static str) -> &'static str {
+    match (idioma, pt) {
+        ("fr", "Ativo") => "Actif",
+        ("en", "Ativo") => "Active",
+        ("fr", "Brilho") => "Lumi.",
+        ("en", "Brilho") => "Light",
+        _ => pt,
+    }
 }

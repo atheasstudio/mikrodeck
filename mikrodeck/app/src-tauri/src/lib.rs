@@ -508,8 +508,16 @@ fn caminho_do_mcp(app: AppHandle) -> Option<String> {
 /// Ícone na bandeja do sistema. É ele que mantém o MikroDeck vivo com a janela
 /// fechada, e é por ele que se encerra o programa de verdade.
 fn montar_bandeja(app: &AppHandle) -> tauri::Result<()> {
-    let abrir = MenuItem::with_id(app, "abrir", "Abrir o MikroDeck", true, None::<&str>)?;
-    let sair = MenuItem::with_id(app, "sair", "Sair", true, None::<&str>)?;
+    // O menu sai no idioma da config. Trocar o idioma vale na próxima abertura.
+    let idioma = Config::carregar_ou_criar(&Config::caminho_padrao())
+        .map(|c| c.idioma)
+        .unwrap_or_else(|_| "fr".into());
+    let (texto_abrir, texto_sair) = match idioma.as_str() {
+        "en" => ("Open MikroDeck", "Quit"),
+        _ => ("Ouvrir MikroDeck", "Quitter"),
+    };
+    let abrir = MenuItem::with_id(app, "abrir", texto_abrir, true, None::<&str>)?;
+    let sair = MenuItem::with_id(app, "sair", texto_sair, true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&abrir, &sair])?;
 
     TrayIconBuilder::with_id("bandeja")

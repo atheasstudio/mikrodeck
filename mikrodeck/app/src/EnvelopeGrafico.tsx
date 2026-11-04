@@ -8,6 +8,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { curvar, type Envelope } from "./tipos";
+import { t } from "./idioma";
 
 interface Props {
   envelope: Envelope;
@@ -165,16 +166,16 @@ export default function EnvelopeGrafico({ envelope, onMudar }: Props) {
   }
 
   const nos: { alca: Alca; x: number; y: number; titulo: string }[] = [
-    { alca: "atraso", x: xAtaque, y: y(0), titulo: "Atraso" },
-    { alca: "ataque", x: xTopo, y: y(1), titulo: "Ataque" },
-    { alca: "retencao", x: xFimRetencao, y: y(1), titulo: "Retenção" },
+    { alca: "atraso", x: xAtaque, y: y(0), titulo: t("Atraso") },
+    { alca: "ataque", x: xTopo, y: y(1), titulo: t("Ataque") },
+    { alca: "retencao", x: xFimRetencao, y: y(1), titulo: t("Retenção") },
     {
       alca: "sustentacao",
       x: xSustentacao,
       y: y(envelope.sustentacao),
-      titulo: "Decaimento e sustentação",
+      titulo: t("Decaimento e sustentação"),
     },
-    { alca: "liberacao", x: xFim, y: y(0), titulo: "Liberação" },
+    { alca: "liberacao", x: xFim, y: y(0), titulo: t("Liberação") },
   ];
 
   /**
@@ -231,12 +232,12 @@ export default function EnvelopeGrafico({ envelope, onMudar }: Props) {
       </svg>
 
       <div className="mt-1 flex justify-between px-1 text-[10px] uppercase tracking-wide text-neutral-500">
-        <span>Atraso</span>
-        <span>Ataque</span>
-        <span>Reten.</span>
-        <span>Decai.</span>
-        <span>Sustent.</span>
-        <span>Liber.</span>
+        <span>{t("Atraso")}</span>
+        <span>{t("Ataque")}</span>
+        <span>{t("Reten.")}</span>
+        <span>{t("Decai.")}</span>
+        <span>{t("Sustent.")}</span>
+        <span>{t("Liber.")}</span>
       </div>
     </div>
   );

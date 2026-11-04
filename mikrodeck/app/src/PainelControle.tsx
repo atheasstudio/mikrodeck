@@ -23,6 +23,7 @@ import {
   type Controle,
   type TeclaMidia,
 } from "./tipos";
+import { t } from "./idioma";
 
 interface Props {
   selecao: Selecao;
@@ -58,7 +59,7 @@ export function PainelControle({
   reservado = false,
 }: Props) {
   const ehBotao = selecao.tipo === "botao";
-  const titulo = ehBotao ? rotuloDoBotao(selecao.id) : `Pad ${selecao.pad}`;
+  const titulo = ehBotao ? rotuloDoBotao(selecao.id) : t("Pad {n}", { n: selecao.pad });
   const atual = controle ?? CONTROLE_VAZIO;
   // Gravação de atalho: enquanto grava, o teclado inteiro vira entrada.
   const [gravando, setGravando] = useState(false);
@@ -150,17 +151,14 @@ export function PainelControle({
       <div className="flex flex-col gap-4">
         <div className="flex items-baseline justify-between">
           <span className="text-[15px] font-medium">{titulo}</span>
-          <span className="text-xs text-neutral-500">reservado</span>
+          <span className="text-xs text-neutral-500">{t("reservado")}</span>
         </div>
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/40">
           <p className="text-[13px] leading-relaxed text-amber-900 dark:text-amber-200">
-            Este botão está guardado para trocar de página, então não aceita
-            outra função. Se ele pudesse ser reprogramado, você ficaria sem como
-            sair da página.
+            {t("Este botão está guardado para trocar de página, então não aceita outra função. Se ele pudesse ser reprogramado, você ficaria sem como sair da página.")}
           </p>
           <p className="mt-2 text-xs text-amber-800 dark:text-amber-300">
-            Para liberar, escolha outro botão em Configurações → Navegação por
-            páginas. Este volta a aceitar programação na hora.
+            {t("Para liberar, escolha outro botão em Configurações → Navegação por páginas. Este volta a aceitar programação na hora.")}
           </p>
         </div>
       </div>
@@ -172,7 +170,7 @@ export function PainelControle({
       <div className="flex items-baseline justify-between">
         <span className="text-[15px] font-medium">{titulo}</span>
         <span className="text-xs text-neutral-500">
-          Página {numeroPagina} · {nomePagina}
+          {t("Página {n}", { n: numeroPagina })} · {nomePagina}
         </span>
       </div>
 
@@ -180,7 +178,7 @@ export function PainelControle({
         <input
           type="text"
           value={atual.nome}
-          placeholder="Ex.: Chrome"
+          placeholder={t("Ex.: Chrome")}
           onChange={(e) => mudar({ nome: e.target.value })}
           className={entrada}
         />
@@ -196,7 +194,7 @@ export function PainelControle({
         >
           {Object.entries(ROTULOS_ACAO).map(([tipo, rotulo]) => (
             <option key={tipo} value={tipo}>
-              {rotulo}
+              {t(rotulo)}
             </option>
           ))}
         </select>
@@ -209,7 +207,7 @@ export function PainelControle({
             <input
               type="text"
               value={atual.acao.caminho}
-              placeholder="Escolha um programa"
+              placeholder={t("Escolha um programa")}
               onChange={(e) =>
                 mudar({
                   acao: { ...atual.acao, caminho: e.target.value } as Acao,
@@ -220,21 +218,20 @@ export function PainelControle({
             <button
               onClick={() => setEscolhendoApp(true)}
               className={botao}
-              title="Escolher da lista do menu Iniciar"
+              title={t("Escolher da lista do menu Iniciar")}
             >
-              Escolher
+              {t("Escolher")}
             </button>
             <button
               onClick={escolherPrograma}
               className={botao}
-              title="Procurar o arquivo no disco"
+              title={t("Procurar o arquivo no disco")}
             >
-              Arquivo
+              {t("Arquivo")}
             </button>
           </div>
           <p className="mt-1 text-xs text-neutral-500">
-            "Escolher" lista o que está no menu Iniciar, inclusive apps da
-            Microsoft Store, que não abrem pelo arquivo.
+            {t("\"Escolher\" lista o que está no menu Iniciar, inclusive apps da Microsoft Store, que não abrem pelo arquivo.")}
           </p>
           <label className="mt-2 flex items-start gap-2 text-xs text-neutral-600 dark:text-neutral-400">
             <input
@@ -244,11 +241,9 @@ export function PainelControle({
               className="mt-0.5"
             />
             <span>
-              Cuidar da janela
+              {t("Cuidar da janela")}
               <span className="block text-neutral-500">
-                Um toque abre, traz para a frente ou minimiza. Segurar maximiza,
-                e segurar de novo desmaximiza. Dois toques rápidos fecham. Com
-                isso ligado o pad age quando você solta, não quando aperta.
+                {t("Um toque abre, traz para a frente ou minimiza. Segurar maximiza, e segurar de novo desmaximiza. Dois toques rápidos fecham. Com isso ligado o pad age quando você solta, não quando aperta.")}
               </span>
             </span>
           </label>
@@ -267,7 +262,7 @@ export function PainelControle({
             className={entrada}
           />
           <p className="mt-1 text-xs text-neutral-500">
-            Pode digitar só o endereço: o https vai sozinho.
+            {t("Pode digitar só o endereço: o https vai sozinho.")}
           </p>
           <label className="mt-2 flex items-start gap-2 text-xs text-neutral-600 dark:text-neutral-400">
             <input
@@ -277,11 +272,9 @@ export function PainelControle({
               className="mt-0.5"
             />
             <span>
-              Cuidar da janela
+              {t("Cuidar da janela")}
               <span className="block text-neutral-500">
-                Toque vai para a janela do site se ela já estiver aberta, em vez
-                de abrir outra. Dois toques rápidos maximizam. Segurar abre uma
-                janela nova mesmo já tendo uma.
+                {t("Toque vai para a janela do site se ela já estiver aberta, em vez de abrir outra. Dois toques rápidos maximizam. Segurar abre uma janela nova mesmo já tendo uma.")}
               </span>
             </span>
           </label>
@@ -293,7 +286,7 @@ export function PainelControle({
           <input
             type="text"
             value={atual.acao.linha}
-            placeholder="Ex.: shutdown /h"
+            placeholder={t("Ex.: shutdown /h")}
             onChange={(e) =>
               mudar({ acao: { tipo: "comando", linha: e.target.value } })
             }
@@ -308,7 +301,7 @@ export function PainelControle({
             <input
               type="text"
               value={gravando ? seguradas.join(" + ") : atual.acao.teclas}
-              placeholder={gravando ? "Segure as teclas…" : "Ex.: ctrl+shift+n"}
+              placeholder={gravando ? t("Segure as teclas…") : t("Ex.: ctrl+shift+n")}
               onChange={(e) =>
                 mudar({ acao: { tipo: "atalho", teclas: e.target.value } })
               }
@@ -328,18 +321,17 @@ export function PainelControle({
                   : botao
               }
             >
-              {gravando ? "Cancelar" : "Gravar"}
+              {gravando ? t("Cancelar") : t("Gravar")}
             </button>
           </div>
           <p className="mt-1 text-xs text-neutral-500">
             {gravando
-              ? "Segure todas as teclas do atalho ao mesmo tempo. Grava quando você soltar. Esc cancela."
-              : "Clique em Gravar e aperte o atalho, ou digite: ctrl, shift, alt, win, f1 a f24, letras e números, separados por +."}
+              ? t("Segure todas as teclas do atalho ao mesmo tempo. Grava quando você soltar. Esc cancela.")
+              : t("Clique em Gravar e aperte o atalho, ou digite: ctrl, shift, alt, win, f1 a f24, letras e números, separados por +.")}
           </p>
           {gravando && (
             <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-              Combinações que o Windows reserva, como win+L, ele engole antes de
-              chegar aqui. Essas precisam ser digitadas na mão.
+              {t("Combinações que o Windows reserva, como win+L, ele engole antes de chegar aqui. Essas precisam ser digitadas na mão.")}
             </p>
           )}
         </Campo>
@@ -358,7 +350,7 @@ export function PainelControle({
           >
             {Object.entries(ROTULOS_MIDIA).map(([tecla, rotulo]) => (
               <option key={tecla} value={tecla}>
-                {rotulo}
+                {t(rotulo)}
               </option>
             ))}
           </select>
@@ -388,15 +380,14 @@ export function PainelControle({
             <input
               type="text"
               value={atual.acao.servico}
-              placeholder="Ex.: light.toggle"
+              placeholder={t("Ex.: light.toggle")}
               onChange={(e) =>
                 mudar({ acao: { ...atual.acao, servico: e.target.value } as Acao })
               }
               className={entrada}
             />
             <p className="mt-1 text-xs text-neutral-500">
-              Domínio e serviço separados por ponto. Ex.: light.toggle,
-              switch.turn_on, scene.turn_on, script.turn_on.
+              {t("Domínio e serviço separados por ponto. Ex.: light.toggle, switch.turn_on, scene.turn_on, script.turn_on.")}
             </p>
           </Campo>
           <Campo rotulo="Entidade">
@@ -404,7 +395,7 @@ export function PainelControle({
               <input
                 type="text"
                 value={atual.acao.entidade}
-                placeholder="Ex.: light.sala"
+                placeholder={t("Ex.: light.sala")}
                 onChange={(e) =>
                   mudar({ acao: { ...atual.acao, entidade: e.target.value } as Acao })
                 }
@@ -413,15 +404,13 @@ export function PainelControle({
               <button
                 onClick={() => setEscolhendoEntidade(true)}
                 className={botao}
-                title="Escolher da lista do Home Assistant"
+                title={t("Escolher da lista do Home Assistant")}
               >
-                Escolher
+                {t("Escolher")}
               </button>
             </div>
             <p className="mt-1 text-xs text-neutral-500">
-              "Escolher" lista o que a sua casa tem e já preenche o serviço certo
-              para cada tipo. Deixe vazio para serviços que não precisam de
-              entidade. O endereço e o token ficam em Configurações.
+              {t("\"Escolher\" lista o que a sua casa tem e já preenche o serviço certo para cada tipo. Deixe vazio para serviços que não precisam de entidade. O endereço e o token ficam em Configurações.")}
             </p>
           </Campo>
         </>
@@ -460,7 +449,7 @@ export function PainelControle({
               <textarea
                 value={atual.acao.corpo ?? ""}
                 rows={3}
-                placeholder={'{ "chave": "valor" }'}
+                placeholder={t('{ "chave": "valor" }')}
                 onChange={(e) =>
                   mudar({
                     acao: {
@@ -514,8 +503,7 @@ export function PainelControle({
 
       {ehBotao ? (
         <p className="text-xs text-neutral-500">
-          Botões do aparelho são monocromáticos: eles acendem quando têm ação,
-          e apagam quando não têm. Cor só existe nos pads.
+          {t("Botões do aparelho são monocromáticos: eles acendem quando têm ação, e apagam quando não têm. Cor só existe nos pads.")}
         </p>
       ) : (
         <>
@@ -540,7 +528,7 @@ export function PainelControle({
                     mudar({ cor_aberto: e.target.checked ? "verde" : null })
                   }
                 />
-                Mudar de cor sozinho quando o programa estiver rodando
+                {t("Mudar de cor sozinho quando o programa estiver rodando")}
               </label>
               {atual.cor_aberto != null && (
                 <SeletorCor
@@ -570,7 +558,7 @@ export function PainelControle({
                     mudar({ brilho: e.target.checked ? null : brilhoGeral })
                   }
                 />
-                usar o geral
+                {t("usar o geral")}
               </label>
             </div>
           </Campo>
@@ -582,7 +570,7 @@ export function PainelControle({
           onClick={() => onMudar(null)}
           className="mt-2 self-start text-xs text-red-700 hover:underline dark:text-red-400"
         >
-          {ehBotao ? "Limpar este botão" : "Limpar este pad"}
+          {ehBotao ? t("Limpar este botão") : t("Limpar este pad")}
         </button>
       )}
     </div>
@@ -599,7 +587,7 @@ function Campo({
   return (
     <div>
       <label className="mb-1 block text-xs text-neutral-600 dark:text-neutral-400">
-        {rotulo}
+        {t(rotulo)}
       </label>
       {children}
     </div>

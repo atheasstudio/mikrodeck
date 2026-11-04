@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { listarApps, type AppInstalado } from "./ponte";
 import SeletorLista, { type ItemDaLista } from "./SeletorLista";
+import { t } from "./idioma";
 
 interface Props {
   onEscolher: (app: AppInstalado) => void;
@@ -32,10 +33,10 @@ export default function SeletorApp({ onEscolher, onFechar }: Props) {
 
   return (
     <SeletorLista
-      titulo="Digite o nome do programa"
+      titulo={t("Digite o nome do programa")}
       itens={itens}
       erro={erro}
-      vazio="Nada com esse nome. O programa precisa aparecer no menu Iniciar do Windows para entrar nesta lista."
+      vazio={t("Nada com esse nome. O programa precisa aparecer no menu Iniciar do Windows para entrar nesta lista.")}
       onFechar={onFechar}
       onEscolher={(item) => {
         const achado = apps?.find((a) => a.caminho === item.id);
