@@ -44,6 +44,12 @@ pub struct Config {
     /// O que a luz faz ao soltar um pad.
     #[serde(default)]
     pub ao_apertar: AoApertar,
+    /// Programas que pausam o MikroDeck sozinhos: abriu um deles, o aparelho volta
+    /// a ser um Maschine; fechou todos, o MikroDeck retoma. Cada item é o começo do
+    /// nome do executável, sem diferença de maiúscula (`ableton live` pega o
+    /// `Ableton Live 12 Suite.exe`). Lista vazia desliga.
+    #[serde(default = "pausar_com_padrao")]
+    pub pausar_com: Vec<String>,
 }
 
 /// Descanso de tela: depois de um tempo sem ninguém tocar no aparelho, a tela
@@ -226,6 +232,11 @@ fn botao_anterior_padrao() -> String {
 }
 fn brilho_padrao() -> u8 {
     2
+}
+
+/// Os programas de música que usam o Mikro direto pela USB.
+fn pausar_com_padrao() -> Vec<String> {
+    vec!["ableton live".into(), "maschine 2".into(), "constella".into()]
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -545,6 +556,7 @@ impl Config {
             home_assistant: HomeAssistant::default(),
             descanso: Default::default(),
             ao_apertar: Default::default(),
+            pausar_com: pausar_com_padrao(),
         }
     }
 }

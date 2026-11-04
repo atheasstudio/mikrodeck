@@ -247,6 +247,25 @@ fn laco_de_eventos<F>(
                 if !rapido || tiques_rapidos % 4 == 0 {
                     atualizar_nivel_strip(estado, volume);
                 }
+                // Pausa automática: um programa de música da lista abriu ou fechou.
+                // A varredura dos processos já roda na thread dos vigias.
+                let reacao = {
+                    let mut e = travar(estado);
+                    let aberto = abertos.algum_comeca_com(&e.config().pausar_com);
+                    e.programa_de_musica(aberto)
+                };
+                if let Reacao::Pausado(pausado) = reacao {
+                    if pausado {
+                        tocador.cortar_tudo();
+                        apagar_tela(aparelho);
+                    } else {
+                        compositor.avisar(crate::render::composicao::Cena::Aviso {
+                            titulo: "Ativo".into(),
+                            barra: None,
+                        });
+                    }
+                    avisar(Aviso::Pausado(pausado));
+                }
                 // O descanso e a luz podem ter mudado pela interface ou pelo MCP.
                 let pausado = esta_pausado(estado);
                 let (brilho, repouso) = {
