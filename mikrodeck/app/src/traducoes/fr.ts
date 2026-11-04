@@ -163,7 +163,7 @@ export const FR: Record<string, string> = {
   "Página anterior": "Page précédente",
   "Página {n}": "Page {n}",
   "Páginas": "Pages",
-  "Quando um destes programas abre, o MikroDeck pausa sozinho e devolve o Mikro. Fechou todos, ele volta. Um programa por linha, pelo começo do nome do executável (ex.: Ableton Live, Maschine 2).": "Quand un de ces programmes s'ouvre (ou un plugin de ce nom chargé dans Ableton ou une autre DAW), MikroDeck se met en pause et libère le Mikro. Quand tout est fermé, il reprend. Un nom par ligne, le début du nom du fichier (ex. : Constella, Maschine 2).",
+  "Quando um destes programas abre, o MikroDeck pausa sozinho e devolve o Mikro. Fechou todos, ele volta. Um programa por linha, pelo começo do nome do executável (ex.: Ableton Live, Maschine 2).": "Quand un de ces programmes s'ouvre (Constella compte aussi quand il est chargé en plugin dans Ableton), MikroDeck se met en pause et libère le Mikro. Quand tout est fermé, il reprend. Un nom par ligne, le début du nom du fichier (ex. : Constella, Maschine 2).",
   "Renomear": "Renommer",
   "Requisição HTTP": "Requête HTTP",
   "Respiração": "Respiration",
