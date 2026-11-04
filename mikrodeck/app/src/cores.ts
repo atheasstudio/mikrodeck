@@ -1,3 +1,5 @@
+import { t } from "./idioma";
+
 /**
  * As 18 cores que o aparelho aceita, e como cada uma aparece na tela.
  *
@@ -32,5 +34,5 @@ export const NOMES_CORES = Object.keys(CORES) as NomeCor[];
 
 /** Rótulo legível para mostrar na interface. */
 export function rotuloDaCor(nome: NomeCor): string {
-  return nome.replace(/_/g, " ");
+  return t(nome.replace(/_/g, " "));
 }

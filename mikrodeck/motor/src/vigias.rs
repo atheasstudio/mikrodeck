@@ -167,6 +167,7 @@ fn processos_abertos() -> HashSet<String> {
     };
 
     let mut nomes = HashSet::new();
+    let mut hospedeiros: Vec<u32> = Vec::new();
     unsafe {
         let foto = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
         if foto == INVALID_HANDLE_VALUE {
@@ -181,9 +182,12 @@ fn processos_abertos() -> HashSet<String> {
                     .iter()
                     .position(|&c| c == 0)
                     .unwrap_or(entrada.szExeFile.len());
-                let nome = String::from_utf16_lossy(&entrada.szExeFile[..fim]);
+                let nome = String::from_utf16_lossy(&entrada.szExeFile[..fim]).to_lowercase();
                 if !nome.is_empty() {
-                    nomes.insert(nome.to_lowercase());
+                    if eh_hospedeiro(&nome) {
+                        hospedeiros.push(entrada.th32ProcessID);
+                    }
+                    nomes.insert(nome);
                 }
                 if Process32NextW(foto, &mut entrada) == 0 {
                     break;
@@ -192,7 +196,65 @@ fn processos_abertos() -> HashSet<String> {
         }
         CloseHandle(foto);
     }
+    // Plugin carregado dentro da DAW (Constella no Ableton, por exemplo): o
+    // processo é o da DAW, mas o .vst3/.dll aparece entre os módulos dela.
+    for pid in hospedeiros {
+        modulos_do_processo(pid, &mut nomes);
+    }
     nomes
+}
+
+/// DAWs que podem carregar um plugin que usa o Mikro. Só elas têm os módulos
+/// varridos, para a varredura continuar barata.
+#[cfg(windows)]
+const HOSPEDEIROS: &[&str] = &[
+    "ableton live",
+    "bitwig",
+    "fl64",
+    "fl.exe",
+    "reaper",
+    "studio one",
+    "cubase",
+];
+
+#[cfg(windows)]
+fn eh_hospedeiro(nome: &str) -> bool {
+    HOSPEDEIROS.iter().any(|h| nome.starts_with(h))
+}
+
+/// Junta ao conjunto o nome (minúsculas) de cada módulo carregado no processo.
+#[cfg(windows)]
+fn modulos_do_processo(pid: u32, nomes: &mut HashSet<String>) {
+    use windows_sys::Win32::Foundation::{CloseHandle, INVALID_HANDLE_VALUE};
+    use windows_sys::Win32::System::Diagnostics::ToolHelp::{
+        CreateToolhelp32Snapshot, Module32FirstW, Module32NextW, MODULEENTRY32W,
+        TH32CS_SNAPMODULE, TH32CS_SNAPMODULE32,
+    };
+    unsafe {
+        let foto = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, pid);
+        if foto == INVALID_HANDLE_VALUE {
+            return;
+        }
+        let mut entrada: MODULEENTRY32W = std::mem::zeroed();
+        entrada.dwSize = std::mem::size_of::<MODULEENTRY32W>() as u32;
+        if Module32FirstW(foto, &mut entrada) != 0 {
+            loop {
+                let fim = entrada
+                    .szModule
+                    .iter()
+                    .position(|&c| c == 0)
+                    .unwrap_or(entrada.szModule.len());
+                let nome = String::from_utf16_lossy(&entrada.szModule[..fim]);
+                if !nome.is_empty() {
+                    nomes.insert(nome.to_lowercase());
+                }
+                if Module32NextW(foto, &mut entrada) == 0 {
+                    break;
+                }
+            }
+        }
+        CloseHandle(foto);
+    }
 }
 
 #[cfg(not(windows))]

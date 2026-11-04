@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { t } from "./idioma";
 
 export interface ItemDaLista {
   /** O que identifica o item, e o que volta ao escolher. */
@@ -111,7 +112,7 @@ export default function SeletorLista({
         <div ref={lista} className="min-h-0 flex-1 overflow-y-auto">
           {erro && <p className="p-4 text-xs text-red-500">{erro}</p>}
           {!itens && !erro && (
-            <p className="p-4 text-xs text-neutral-500">Buscando…</p>
+            <p className="p-4 text-xs text-neutral-500">{t("Buscando…")}</p>
           )}
           {itens && filtrados.length === 0 && (
             <p className="p-4 text-xs text-neutral-500">{vazio}</p>
@@ -151,8 +152,8 @@ export default function SeletorLista({
           ))}
         </div>
         <div className="flex items-center justify-between border-t border-neutral-200 px-4 py-2 text-xs text-neutral-500 dark:border-neutral-800">
-          <span>{itens ? `${filtrados.length} de ${itens.length}` : ""}</span>
-          <span>Setas para andar, Enter para escolher</span>
+          <span>{itens ? t("{a} de {b}", { a: filtrados.length, b: itens.length }) : ""}</span>
+          <span>{t("Setas para andar, Enter para escolher")}</span>
         </div>
       </div>
     </div>

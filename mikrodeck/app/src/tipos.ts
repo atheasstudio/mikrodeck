@@ -1,6 +1,7 @@
 /** Espelho dos tipos do motor. Precisa bater com `motor/src/config.rs`. */
 
 import type { NomeCor } from "./cores";
+import { t, type Idioma } from "./idioma";
 
 export type Acao =
   | { tipo: "nenhuma" }
@@ -165,7 +166,8 @@ export const BOTOES_FISICOS = [
 export type IdBotao = (typeof BOTOES_FISICOS)[number]["id"];
 
 export function rotuloDoBotao(id: string): string {
-  return BOTOES_FISICOS.find((b) => b.id === id)?.rotulo ?? id;
+  const r = BOTOES_FISICOS.find((b) => b.id === id)?.rotulo;
+  return r ? t(r) : id;
 }
 
 export interface Config {
@@ -183,6 +185,8 @@ export interface Config {
   descanso: Descanso;
   /** Começo do nome dos programas que pausam o MikroDeck sozinhos. */
   pausar_com?: string[];
+  /** Idioma da interface e da tela do aparelho. */
+  idioma?: Idioma;
 }
 
 /** Texto que corre na tela do aparelho depois de um tempo parado. */
@@ -337,26 +341,26 @@ export function nomeDoArquivo(caminho: string): string {
 export function resumoDaAcao(acao: Acao): string {
   switch (acao.tipo) {
     case "abrir_programa":
-      return acao.caminho || "programa não escolhido";
+      return acao.caminho || t("programa não escolhido");
     case "abrir_url":
-      return acao.url || "link vazio";
+      return acao.url || t("link vazio");
     case "comando":
-      return acao.linha || "comando vazio";
+      return acao.linha || t("comando vazio");
     case "atalho":
-      return acao.teclas || "atalho vazio";
+      return acao.teclas || t("atalho vazio");
     case "midia":
-      return ROTULOS_MIDIA[acao.tecla];
+      return t(ROTULOS_MIDIA[acao.tecla]);
     case "home_assistant":
       return acao.entidade
-        ? `${acao.servico} em ${acao.entidade}`
-        : acao.servico || "serviço não escolhido";
+        ? t("{s} em {e}", { s: acao.servico, e: acao.entidade })
+        : acao.servico || t("serviço não escolhido");
     case "http":
-      return acao.url || "endereço vazio";
+      return acao.url || t("endereço vazio");
     case "sample":
-      return acao.caminho ? nomeDoArquivo(acao.caminho) : "som não escolhido";
+      return acao.caminho ? nomeDoArquivo(acao.caminho) : t("som não escolhido");
     case "ir_para_pagina":
-      return `página ${acao.numero}`;
+      return t("página {n}", { n: acao.numero });
     default:
-      return ROTULOS_ACAO[acao.tipo];
+      return t(ROTULOS_ACAO[acao.tipo]);
   }
 }

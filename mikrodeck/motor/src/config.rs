@@ -50,6 +50,13 @@ pub struct Config {
     /// `Ableton Live 12 Suite.exe`). Lista vazia desliga.
     #[serde(default = "pausar_com_padrao")]
     pub pausar_com: Vec<String>,
+    /// Idioma da interface e dos textos da tela do aparelho: "fr" ou "en".
+    #[serde(default = "idioma_padrao")]
+    pub idioma: String,
+}
+
+fn idioma_padrao() -> String {
+    "fr".into()
 }
 
 /// Descanso de tela: depois de um tempo sem ninguém tocar no aparelho, a tela
@@ -234,9 +241,20 @@ fn brilho_padrao() -> u8 {
     2
 }
 
-/// Os programas de música que usam o Mikro direto pela USB.
+/// Os programas que usam o Mikro direto pela USB. "constella" pega tanto o
+/// programa sozinho quanto o plugin carregado dentro do Ableton (ou de outra
+/// DAW): a varredura também olha os módulos carregados nas DAWs.
 fn pausar_com_padrao() -> Vec<String> {
-    vec!["ableton live".into(), "maschine 2".into(), "constella".into()]
+    vec!["maschine 2".into(), "constella".into()]
+}
+
+/// A primeira lista padrão pausava com o Ableton sozinho, o que tirava o Mikro
+/// do MikroDeck mesmo sem nada usando ele. Quem ainda tem ela exata ganha a nova.
+fn migrar_pausar_com(lista: &mut Vec<String>) {
+    let antiga = ["ableton live", "maschine 2", "constella"];
+    if lista.len() == antiga.len() && lista.iter().zip(antiga).all(|(a, b)| a.trim().eq_ignore_ascii_case(b)) {
+        *lista = pausar_com_padrao();
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -299,8 +317,9 @@ impl Config {
     pub fn carregar_ou_criar(caminho: &PathBuf) -> std::io::Result<Self> {
         if caminho.exists() {
             let texto = std::fs::read_to_string(caminho)?;
-            let config: Config = serde_json::from_str(&texto)
+            let mut config: Config = serde_json::from_str(&texto)
                 .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+            migrar_pausar_com(&mut config.pausar_com);
             Ok(config)
         } else {
             let config = Config::exemplo();
@@ -557,6 +576,7 @@ impl Config {
             descanso: Default::default(),
             ao_apertar: Default::default(),
             pausar_com: pausar_com_padrao(),
+            idioma: idioma_padrao(),
         }
     }
 }

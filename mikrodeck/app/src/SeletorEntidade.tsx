@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { entidadesDaCasa, type EntidadeCasa } from "./ponte";
 import SeletorLista, { type ItemDaLista } from "./SeletorLista";
+import { t } from "./idioma";
 
 interface Props {
   onEscolher: (entidade: EntidadeCasa) => void;
@@ -35,10 +36,10 @@ export default function SeletorEntidade({ onEscolher, onFechar }: Props) {
 
   return (
     <SeletorLista
-      titulo="Digite o nome da entidade"
+      titulo={t("Digite o nome da entidade")}
       itens={itens}
       erro={erro}
-      vazio="Nada com esse nome. Confira o endereço e o token em Configurações."
+      vazio={t("Nada com esse nome. Confira o endereço e o token em Configurações.")}
       onFechar={onFechar}
       onEscolher={(item) => {
         const achada = entidades?.find((e) => e.id === item.id);

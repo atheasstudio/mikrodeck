@@ -33,6 +33,7 @@ import {
   type ModoLuz,
   type Ritmo,
 } from "./tipos";
+import { t, IDIOMAS, type Idioma } from "./idioma";
 
 interface Props {
   config: Config;
@@ -91,7 +92,7 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
   async function restaurarPadrao() {
     if (
       !confirm(
-        "Isso apaga todas as suas páginas e volta para a configuração de exemplo. Continuar?",
+        t("Isso apaga todas as suas páginas e volta para a configuração de exemplo. Continuar?"),
       )
     )
       return;
@@ -132,22 +133,56 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-medium">Configurações</h2>
+          <h2 className="text-base font-medium">{t("Configurações")}</h2>
           <button
             onClick={onFechar}
             className="rounded px-2 py-1 text-sm text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700"
           >
-            Fechar
+            {t("Fechar")}
           </button>
         </div>
 
-        <Secao titulo="Navegação por páginas">
+        <Secao titulo="Langue / Language">
+          <select
+            value={config.idioma ?? "fr"}
+            onChange={(e) => onSalvar({ ...config, idioma: e.target.value as Idioma })}
+            className={entrada}
+          >
+            {IDIOMAS.map((i) => (
+              <option key={i.id} value={i.id}>
+                {i.nome}
+              </option>
+            ))}
+          </select>
+        </Secao>
+
+        <Secao titulo={t("Pausa automática")}>
           <p className="mb-2 text-xs text-neutral-500">
-            Botões que trocam de página quando não estão programados na página atual.
+            {t("Quando um destes programas abre, o MikroDeck pausa sozinho e devolve o Mikro. Fechou todos, ele volta. Um programa por linha, pelo começo do nome do executável (ex.: Ableton Live, Maschine 2).")}
+          </p>
+          <textarea
+            rows={3}
+            defaultValue={(config.pausar_com ?? []).join("\n")}
+            onBlur={(e) =>
+              onSalvar({
+                ...config,
+                pausar_com: e.target.value
+                  .split("\n")
+                  .map((l) => l.trim())
+                  .filter((l) => l !== ""),
+              })
+            }
+            className={entrada}
+          />
+        </Secao>
+
+        <Secao titulo={t("Navegação por páginas")}>
+          <p className="mb-2 text-xs text-neutral-500">
+            {t("Botões que trocam de página quando não estão programados na página atual.")}
           </p>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={rotulo}>Página anterior</label>
+              <label className={rotulo}>{t("Página anterior")}</label>
               <select
                 value={config.botao_pagina_anterior}
                 onChange={(e) =>
@@ -157,13 +192,13 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
               >
                 {BOTOES_FISICOS.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.rotulo}
+                    {t(b.rotulo)}
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className={rotulo}>Próxima página</label>
+              <label className={rotulo}>{t("Próxima página")}</label>
               <select
                 value={config.botao_proxima_pagina}
                 onChange={(e) =>
@@ -173,7 +208,7 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
               >
                 {BOTOES_FISICOS.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.rotulo}
+                    {t(b.rotulo)}
                   </option>
                 ))}
               </select>
@@ -181,7 +216,7 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
           </div>
         </Secao>
 
-        <Secao titulo="Ao ligar o computador">
+        <Secao titulo={t("Ao ligar o computador")}>
           <label className="flex items-start gap-2 text-[13px]">
             <input
               type="checkbox"
@@ -199,21 +234,17 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
               className="mt-0.5"
             />
             <span>
-              Abrir o MikroDeck junto com o Windows.
+              {t("Abrir o MikroDeck junto com o Windows.")}
               <span className="block text-xs text-neutral-500">
-                Ele sobe na bandeja, ao lado do relógio, sem abrir esta janela.
-                Fechar a janela também não encerra o programa: para sair de
-                verdade, use o menu do ícone na bandeja.
+                {t("Ele sobe na bandeja, ao lado do relógio, sem abrir esta janela. Fechar a janela também não encerra o programa: para sair de verdade, use o menu do ícone na bandeja.")}
               </span>
             </span>
           </label>
         </Secao>
 
-        <Secao titulo="Knob">
+        <Secao titulo={t("Knob")}>
           <p className="mb-2 text-xs text-neutral-500">
-            O botão giratório ao lado da tela. Girar faz o que estiver escolhido
-            aqui; o clique é programável como um botão qualquer, em qualquer
-            página. Ele não tem luz, então não tem cor para configurar.
+            {t("O botão giratório ao lado da tela. Girar faz o que estiver escolhido aqui; o clique é programável como um botão qualquer, em qualquer página. Ele não tem luz, então não tem cor para configurar.")}
           </p>
           <select
             value={config.knob}
@@ -224,15 +255,15 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
           >
             {Object.entries(ROTULOS_KNOB).map(([valor, rotulo]) => (
               <option key={valor} value={valor}>
-                {rotulo}
+                {t(rotulo)}
               </option>
             ))}
           </select>
         </Secao>
 
-        <Secao titulo="Touch strip">
+        <Secao titulo={t("Touch strip")}>
           <p className="mb-2 text-xs text-neutral-500">
-            A faixa sensível ao toque, abaixo dos botões PITCH e MOD.
+            {t("A faixa sensível ao toque, abaixo dos botões PITCH e MOD.")}
           </p>
           <select
             value={config.strip}
@@ -243,30 +274,28 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
           >
             {Object.entries(ROTULOS_STRIP).map(([valor, rotulo]) => (
               <option key={valor} value={valor}>
-                {rotulo}
+                {t(rotulo)}
               </option>
             ))}
           </select>
 
           <div className="mt-3 rounded-lg border border-neutral-200 p-3 dark:border-neutral-700">
-            <p className="mb-1 text-[13px] font-medium">Calibrar</p>
+            <p className="mb-1 text-[13px] font-medium">{t("Calibrar")}</p>
             <p className="mb-2 text-xs leading-relaxed text-neutral-500">
-              O sensor vai de 0 a 255, mas o dedo não alcança as duas pontas, e
-              por isso não dá para chegar a 100%. Calibre uma vez e a faixa que
-              você alcança passa a valer o intervalo inteiro.
+              {t("O sensor vai de 0 a 255, mas o dedo não alcança as duas pontas, e por isso não dá para chegar a 100%. Calibre uma vez e a faixa que você alcança passa a valer o intervalo inteiro.")}
             </p>
             <dl className="mb-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs">
-              <dt className="text-neutral-500">Posição agora</dt>
-              <dd>{posicaoStrip ?? "encoste na faixa"}</dd>
-              <dt className="text-neutral-500">Gravado</dt>
+              <dt className="text-neutral-500">{t("Posição agora")}</dt>
+              <dd>{posicaoStrip ?? t("encoste na faixa")}</dd>
+              <dt className="text-neutral-500">{t("Gravado")}</dt>
               <dd>
-                {config.calibracao_strip.minimo} a {config.calibracao_strip.maximo}
+                {config.calibracao_strip.minimo} – {config.calibracao_strip.maximo}
               </dd>
               {calibrando && (
                 <>
-                  <dt className="text-neutral-500">Vendo agora</dt>
+                  <dt className="text-neutral-500">{t("Vendo agora")}</dt>
                   <dd>
-                    {faixa ? `${faixa.minimo} a ${faixa.maximo}` : "passe o dedo"}
+                    {faixa ? `${faixa.minimo} – ${faixa.maximo}` : t("passe o dedo")}
                   </dd>
                 </>
               )}
@@ -274,7 +303,7 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
             {calibrando ? (
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs text-sky-600 dark:text-sky-400">
-                  Passe o dedo de uma ponta à outra, devagar.
+                  {t("Passe o dedo de uma ponta à outra, devagar.")}
                 </span>
                 <button
                   onClick={() => {
@@ -286,10 +315,10 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
                   disabled={!faixa || faixa.maximo <= faixa.minimo}
                   className={botao}
                 >
-                  Pronto, salvar
+                  {t("Pronto, salvar")}
                 </button>
                 <button onClick={() => setCalibrando(false)} className={botao}>
-                  Cancelar
+                  {t("Cancelar")}
                 </button>
               </div>
             ) : (
@@ -301,7 +330,7 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
                   }}
                   className={botao}
                 >
-                  Calibrar agora
+                  {t("Calibrar agora")}
                 </button>
                 <button
                   onClick={() =>
@@ -312,14 +341,14 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
                   }
                   className={botao}
                 >
-                  Voltar ao padrão
+                  {t("Voltar ao padrão")}
                 </button>
               </div>
             )}
           </div>
         </Secao>
 
-        <Secao titulo="Descanso de tela">
+        <Secao titulo={t("Descanso de tela")}>
           <label className="mb-2 flex items-center gap-2 text-[13px]">
             <input
               type="checkbox"
@@ -331,11 +360,11 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
                 })
               }
             />
-            Rodar um texto na tela quando o aparelho fica parado
+            {t("Rodar um texto na tela quando o aparelho fica parado")}
           </label>
           <div className="grid grid-cols-[1fr_auto] gap-3">
             <div>
-              <label className={rotulo}>Texto</label>
+              <label className={rotulo}>{t("Texto")}</label>
               <input
                 type="text"
                 value={config.descanso.texto}
@@ -350,7 +379,7 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
               />
             </div>
             <div>
-              <label className={rotulo}>Depois de</label>
+              <label className={rotulo}>{t("Depois de")}</label>
               <div className="flex items-center gap-1.5">
                 <input
                   type="number"
@@ -375,17 +404,17 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
 
           <div className="mt-3 rounded-lg border border-neutral-200 p-3 dark:border-neutral-700">
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-[13px] font-medium">Luz dos pads</p>
+              <p className="text-[13px] font-medium">{t("Luz dos pads")}</p>
               <button onClick={() => previsualizarDescanso().catch(console.error)} className={botao}>
-                Ver agora
+                {t("Ver agora")}
               </button>
             </div>
             <p className="mb-2 text-xs text-neutral-500">
-              O que os 16 pads fazem enquanto o aparelho dorme. O brilho geral é o teto.
+              {t("O que os 16 pads fazem enquanto o aparelho dorme. O brilho geral é o teto.")}
             </p>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className={rotulo}>Modo</label>
+                <label className={rotulo}>{t("Modo")}</label>
                 <select
                   value={config.descanso.luz.modo}
                   onChange={(e) =>
@@ -401,13 +430,13 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
                 >
                   {Object.entries(ROTULOS_MODO_LUZ).map(([valor, texto]) => (
                     <option key={valor} value={valor}>
-                      {texto}
+                      {t(texto)}
                     </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className={rotulo}>Ritmo</label>
+                <label className={rotulo}>{t("Ritmo")}</label>
                 <select
                   value={config.descanso.luz.ritmo}
                   disabled={["nenhuma", "som"].includes(config.descanso.luz.modo)}
@@ -424,13 +453,13 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
                 >
                   {Object.entries(ROTULOS_RITMO).map(([valor, texto]) => (
                     <option key={valor} value={valor}>
-                      {texto}
+                      {t(texto)}
                     </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className={rotulo}>Cor</label>
+                <label className={rotulo}>{t("Cor")}</label>
                 <select
                   value={config.descanso.luz.cor}
                   disabled={config.descanso.luz.modo === "nenhuma"}
@@ -445,7 +474,7 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
                   }
                   className={`${entrada} disabled:opacity-40`}
                 >
-                  <option value="auto">Automática</option>
+                  <option value="auto">{t("Automática")}</option>
                   {NOMES_CORES.filter((n) => n !== "apagado").map((n) => (
                     <option key={n} value={n} style={{ color: CORES[n] }}>
                       {rotuloDaCor(n)}
@@ -457,7 +486,7 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
           </div>
         </Secao>
 
-        <Secao titulo="Pads">
+        <Secao titulo={t("Pads")}>
           <label className="flex items-start gap-2 text-[13px]">
             <input
               type="checkbox"
@@ -471,19 +500,19 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
               className="mt-0.5"
             />
             <span>
-              Eco de luz ao soltar o pad
+              {t("Eco de luz ao soltar o pad")}
               <span className="block text-xs text-neutral-500">
-                O pad volta em brilho cheio e pousa no brilho de repouso em 200 ms.
+                {t("O pad volta em brilho cheio e pousa no brilho de repouso em 200 ms.")}
               </span>
             </span>
           </label>
         </Secao>
 
-        <Secao titulo="Home Assistant">
+        <Secao titulo={t("Home Assistant")}>
           <p className="mb-2 text-xs text-neutral-500">
-            Preencha uma vez para os pads poderem chamar automações da casa.
+            {t("Preencha uma vez para os pads poderem chamar automações da casa.")}
           </p>
-          <label className={rotulo}>Endereço do servidor</label>
+          <label className={rotulo}>{t("Endereço do servidor")}</label>
           <input
             type="text"
             value={config.home_assistant.endereco}
@@ -499,11 +528,11 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
             }
             className={`${entrada} mb-2`}
           />
-          <label className={rotulo}>Token de acesso de longa duração</label>
+          <label className={rotulo}>{t("Token de acesso de longa duração")}</label>
           <input
             type="password"
             value={config.home_assistant.token}
-            placeholder="cole aqui o token"
+            placeholder={t("cole aqui o token")}
             onChange={(e) =>
               onSalvar({
                 ...config,
@@ -516,18 +545,15 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
             className={`${entrada} font-mono text-xs`}
           />
           <p className="mt-2 text-xs text-neutral-500">
-            O token sai do seu perfil no Home Assistant, no fim da página, em
-            "Tokens de acesso de longa duração". Ele fica gravado em texto puro
-            no arquivo de configuração, na sua pasta de usuário.
+            {t("O token sai do seu perfil no Home Assistant, no fim da página, em \"Tokens de acesso de longa duração\". Ele fica gravado em texto puro no arquivo de configuração, na sua pasta de usuário.")}
           </p>
 
           <div className="mt-3 rounded-lg border border-neutral-200 p-3 dark:border-neutral-700">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-[13px] font-medium">Buscar os dispositivos</p>
+                <p className="text-[13px] font-medium">{t("Buscar os dispositivos")}</p>
                 <p className="text-xs text-neutral-500">
-                  Pergunta ao Home Assistant o que ele tem e monta uma página com
-                  tudo que liga e desliga. Nada do que já existe é apagado.
+                  {t("Pergunta ao Home Assistant o que ele tem e monta uma página com tudo que liga e desliga. Nada do que já existe é apagado.")}
                 </p>
               </div>
               <button
@@ -538,9 +564,10 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
                     .then((r) => {
                       onSalvar(r.config);
                       setRecadoCasa(
-                        `${r.dispositivos} dispositivos em ${r.paginas} ${
-                          r.paginas === 1 ? "página" : "páginas"
-                        }.`,
+                        t(r.paginas === 1 ? "{d} dispositivos em {p} página." : "{d} dispositivos em {p} páginas.", {
+                          d: r.dispositivos,
+                          p: r.paginas,
+                        }),
                       );
                     })
                     .catch((e) => setRecadoCasa(String(e)))
@@ -549,7 +576,7 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
                 disabled={buscando || !config.home_assistant.token.trim()}
                 className={`${botao} shrink-0 disabled:opacity-40`}
               >
-                {buscando ? "Buscando…" : "Buscar"}
+                {buscando ? t("Buscando…") : t("Buscar")}
               </button>
             </div>
             {recadoCasa && (
@@ -558,11 +585,9 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
           </div>
         </Secao>
 
-        <Secao titulo="Apoie o projeto">
+        <Secao titulo={t("Apoie o projeto")}>
           <p className="mb-3 text-[13px] leading-relaxed text-neutral-600 dark:text-neutral-400">
-            O MikroDeck é livre e sempre vai ser. Ele nasceu de engenharia
-            reversa feita à mão num aparelho que a fabricante nunca abriu, e
-            quem quiser ajudar a manter o trabalho de pé pode contribuir.
+            {t("O MikroDeck é livre e sempre vai ser. Ele nasceu de engenharia reversa feita à mão num aparelho que a fabricante nunca abriu, e quem quiser ajudar a manter o trabalho de pé pode contribuir.")}
           </p>
           <div className="flex flex-wrap gap-2">
             <button
@@ -573,7 +598,7 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
               }
               className="rounded-lg bg-pink-600 px-3 py-1.5 text-[13px] font-medium text-white hover:bg-pink-500"
             >
-              ♥ Apoiar o projeto
+              ♥ {t("Apoiar o projeto")}
             </button>
             <button
               onClick={() =>
@@ -583,42 +608,39 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
               }
               className={botao}
             >
-              Ver no GitHub
+              {t("Ver no GitHub")}
             </button>
           </div>
         </Secao>
 
-        <Secao titulo="Botões com função de fábrica">
+        <Secao titulo={t("Botões com função de fábrica")}>
           <p className="text-[13px] leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Três botões já vêm com função, e todos podem ser trocados: basta configurar
-            o botão na página.
+            {t("Três botões já vêm com função, e todos podem ser trocados: basta configurar o botão na página.")}
           </p>
           <ul className="mt-2 space-y-1 text-[13px] text-neutral-600 dark:text-neutral-400">
-            <li>Círculo: liga e desliga o MikroDeck sem fechar o programa.</li>
-            <li>Estrela: vai para a primeira página.</li>
-            <li>Lupa: abre a busca do Windows.</li>
+            <li>{t("Círculo: liga e desliga o MikroDeck sem fechar o programa.")}</li>
+            <li>{t("Estrela: vai para a primeira página.")}</li>
+            <li>{t("Lupa: abre a busca do Windows.")}</li>
           </ul>
         </Secao>
 
-        <Secao titulo="Configurar por conversa (MCP)">
+        <Secao titulo={t("Configurar por conversa (MCP)")}>
           <p className="mb-3 text-[13px] leading-relaxed text-neutral-600 dark:text-neutral-400">
-            O MikroDeck vem com um servidor MCP. Ligue ele em qualquer assistente
-            que fale MCP e peça os atalhos em português: a mudança entra no
-            aparelho na hora, sem reiniciar nada.
+            {t("O MikroDeck vem com um servidor MCP. Ligue ele em qualquer assistente que fale MCP e peça os atalhos em português: a mudança entra no aparelho na hora, sem reiniciar nada.")}
           </p>
           {mcp ? (
             <>
-              <p className={rotulo}>Caminho do servidor</p>
+              <p className={rotulo}>{t("Caminho do servidor")}</p>
               <div className="mb-3 flex gap-2">
                 <pre className="min-w-0 flex-1 overflow-x-auto rounded-lg bg-neutral-100 p-2.5 text-xs dark:bg-neutral-900">
                   {mcp}
                 </pre>
                 <button onClick={() => copiar(mcp, "caminho")} className={botao}>
-                  {copiado === "caminho" ? "Copiado" : "Copiar"}
+                  {copiado === "caminho" ? t("Copiado") : t("Copiar")}
                 </button>
               </div>
 
-              <p className={rotulo}>Claude Code, Cursor, Codex e outros de terminal</p>
+              <p className={rotulo}>{t("Claude Code, Cursor, Codex e outros de terminal")}</p>
               <div className="mb-3 flex gap-2">
                 <pre className="min-w-0 flex-1 overflow-x-auto rounded-lg bg-neutral-100 p-2.5 text-xs dark:bg-neutral-900">
                   {comandoCli(mcp)}
@@ -627,13 +649,12 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
                   onClick={() => copiar(comandoCli(mcp), "cli")}
                   className={botao}
                 >
-                  {copiado === "cli" ? "Copiado" : "Copiar"}
+                  {copiado === "cli" ? t("Copiado") : t("Copiar")}
                 </button>
               </div>
 
               <p className={rotulo}>
-                Claude Desktop, Cursor, Windsurf, Zed e qualquer outro que use
-                arquivo de configuração
+                {t("Claude Desktop, Cursor, Windsurf, Zed e qualquer outro que use arquivo de configuração")}
               </p>
               <div className="flex gap-2">
                 <pre className="min-w-0 flex-1 overflow-x-auto rounded-lg bg-neutral-100 p-2.5 text-xs dark:bg-neutral-900">
@@ -643,67 +664,62 @@ export function Configuracoes({ config, onFechar, onSalvar }: Props) {
                   onClick={() => copiar(blocoJson(mcp), "json")}
                   className={`${botao} self-start`}
                 >
-                  {copiado === "json" ? "Copiado" : "Copiar"}
+                  {copiado === "json" ? t("Copiado") : t("Copiar")}
                 </button>
               </div>
               <p className="mt-2 text-xs text-neutral-500">
-                Cole dentro de <code>mcpServers</code> no arquivo de configuração
-                do seu assistente e reinicie ele.
+                {t("Cole dentro de")} <code>mcpServers</code> {t("no arquivo de configuração do seu assistente e reinicie ele.")}
               </p>
             </>
           ) : (
             <p className="text-[13px] text-neutral-500">
-              Servidor MCP não encontrado nesta instalação.
+              {t("Servidor MCP não encontrado nesta instalação.")}
             </p>
           )}
         </Secao>
 
-        <Secao titulo="Diagnóstico">
+        <Secao titulo={t("Diagnóstico")}>
           {diag ? (
             <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[13px]">
-              <dt className="text-neutral-500">Aparelho</dt>
-              <dd>{diag.aparelho_conectado ? "conectado" : "não encontrado"}</dd>
-              <dt className="text-neutral-500">Páginas</dt>
+              <dt className="text-neutral-500">{t("Aparelho")}</dt>
+              <dd>{diag.aparelho_conectado ? t("conectado") : t("não encontrado")}</dd>
+              <dt className="text-neutral-500">{t("Páginas")}</dt>
               <dd>{diag.paginas}</dd>
-              <dt className="text-neutral-500">Pads configurados</dt>
+              <dt className="text-neutral-500">{t("Pads configurados")}</dt>
               <dd>{diag.pads_configurados}</dd>
-              <dt className="text-neutral-500">Botões configurados</dt>
+              <dt className="text-neutral-500">{t("Botões configurados")}</dt>
               <dd>{diag.botoes_configurados}</dd>
-              <dt className="text-neutral-500">Versão do motor</dt>
+              <dt className="text-neutral-500">{t("Versão do motor")}</dt>
               <dd>{diag.versao_motor}</dd>
               <dt className="text-neutral-500">Config</dt>
               <dd className="break-all text-xs">{diag.caminho_config}</dd>
             </dl>
           ) : (
-            <p className="text-[13px] text-neutral-500">Lendo…</p>
+            <p className="text-[13px] text-neutral-500">{t("Lendo…")}</p>
           )}
           <div className="mt-3 flex flex-wrap gap-2">
             <button onClick={testarLeds} disabled={ocupado} className={botao}>
-              Testar LEDs
+              {t("Testar LEDs")}
             </button>
             <button onClick={abrirPastaConfig} className={botao}>
-              Abrir pasta da config
+              {t("Abrir pasta da config")}
             </button>
           </div>
         </Secao>
 
-        <Secao titulo="Se o aparelho não acender">
+        <Secao titulo={t("Se o aparelho não acender")}>
           <p className="text-[13px] leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Na primeira vez em cada aparelho, abra o <strong>Maschine 2 como
-            administrador</strong> uma vez, com o Mikro conectado. Isso grava um
-            estado permanente que libera o controle dos LEDs. Depois disso o
-            MikroDeck funciona sozinho, sem nada da Native Instruments rodando,
-            e o estado sobrevive a reiniciar o computador e a desconectar o cabo.
+            {t("Na primeira vez em cada aparelho, abra o Maschine 2 como administrador uma vez, com o Mikro conectado. Isso grava um estado permanente que libera o controle dos LEDs. Depois disso o MikroDeck funciona sozinho, sem nada da Native Instruments rodando, e o estado sobrevive a reiniciar o computador e a desconectar o cabo.")}
           </p>
         </Secao>
 
-        <Secao titulo="Zona de risco">
+        <Secao titulo={t("Zona de risco")}>
           <button
             onClick={restaurarPadrao}
             disabled={ocupado}
             className="rounded-lg border border-red-300 px-3 py-1.5 text-[13px] text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
           >
-            Restaurar configuração de exemplo
+            {t("Restaurar configuração de exemplo")}
           </button>
         </Secao>
       </div>

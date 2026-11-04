@@ -18,6 +18,7 @@ import {
 } from "./ponte";
 import EnvelopeGrafico from "./EnvelopeGrafico";
 import FormaDeOnda from "./FormaDeOnda";
+import { t } from "./idioma";
 import {
   ENVELOPE_PADRAO,
   nomeDoArquivo,
@@ -106,7 +107,7 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
       const caminho = await pararGravacao();
       onMudar({ ...acao, caminho });
       setVersao((v) => v + 1);
-      setRecado("Gravado.");
+      setRecado(t("Gravado."));
     } catch (e) {
       setRecado(String(e));
     } finally {
@@ -118,14 +119,14 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
     <div className="space-y-3">
       <div>
         <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
-          Som
+          {t("Som")}
         </label>
         <div className="flex gap-2">
           <input
             type="text"
             value={acao.caminho}
             readOnly
-            placeholder="nenhum som escolhido"
+            placeholder={t("nenhum som escolhido")}
             title={acao.caminho}
             className={`${entrada} flex-1`}
           />
@@ -135,7 +136,7 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
             }
             className={botao}
           >
-            Procurar
+            {t("Procurar")}
           </button>
         </div>
         {acao.caminho && (
@@ -153,13 +154,13 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
                   }
                   className="text-xs text-sky-600 hover:underline dark:text-sky-400"
                 >
-                  Ouvir
+                  {t("Ouvir")}
                 </button>
                 <button
                   onClick={() => pararPrevia().catch(console.error)}
                   className="text-xs text-neutral-500 hover:underline"
                 >
-                  Parar
+                  {t("Parar")}
                 </button>
               </div>
             </div>
@@ -171,10 +172,10 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
       </div>
 
       <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-700">
-        <p className="mb-2 text-[13px] font-medium">Gravar do microfone</p>
+        <p className="mb-2 text-[13px] font-medium">{t("Gravar do microfone")}</p>
         {micros.length === 0 ? (
           <p className="text-xs text-neutral-500">
-            Não achei microfone nenhum ligado neste computador.
+            {t("Não achei microfone nenhum ligado neste computador.")}
           </p>
         ) : (
           <>
@@ -187,7 +188,7 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
               {micros.map((m) => (
                 <option key={m.nome} value={m.nome}>
                   {m.nome}
-                  {m.padrao ? " (padrão)" : ""}
+                  {m.padrao ? ` ${t("(padrão)")}` : ""}
                 </option>
               ))}
             </select>
@@ -198,12 +199,12 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
                   gravando ? "border-red-500 text-red-600 dark:text-red-400" : ""
                 }`}
               >
-                {gravando ? "Parar" : "Gravar"}
+                {gravando ? t("Parar") : t("Gravar")}
               </button>
               <span className="text-xs tabular-nums text-neutral-500">
                 {gravando
-                  ? `${segundos.toFixed(1)} s de ${SEGUNDOS_DE_GRAVACAO} s`
-                  : `no máximo ${SEGUNDOS_DE_GRAVACAO} s`}
+                  ? t("{s} s de {max} s", { s: segundos.toFixed(1), max: SEGUNDOS_DE_GRAVACAO })
+                  : t("no máximo {max} s", { max: SEGUNDOS_DE_GRAVACAO })}
               </span>
             </div>
           </>
@@ -213,7 +214,7 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
 
       <div>
         <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
-          Como dispara
+          {t("Como dispara")}
         </label>
         <select
           value={acao.modo}
@@ -222,7 +223,7 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
         >
           {Object.entries(ROTULOS_MODO_DISPARO).map(([valor, texto]) => (
             <option key={valor} value={valor}>
-              {texto}
+              {t(texto)}
             </option>
           ))}
         </select>
@@ -230,7 +231,7 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
 
       <div>
         <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
-          Volume: {Math.round(acao.volume * 100)}%
+          {t("Volume")}: {Math.round(acao.volume * 100)}%
         </label>
         <input
           type="range"
@@ -244,12 +245,12 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
 
       <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-700">
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-[13px] font-medium">Envelope</p>
+          <p className="text-[13px] font-medium">{t("Envelope")}</p>
           <button
             onClick={() => onMudar({ ...acao, envelope: { ...ENVELOPE_PADRAO } })}
             className="text-xs text-sky-600 hover:underline dark:text-sky-400"
           >
-            Voltar ao padrão
+            {t("Voltar ao padrão")}
           </button>
         </div>
 
@@ -259,7 +260,7 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
         />
 
         <p className="mt-2 text-xs text-neutral-500">
-          Arraste as bolinhas. A da sustentação também sobe e desce.
+          {t("Arraste as bolinhas. A da sustentação também sobe e desce.")}
         </p>
 
         <div className="mt-3 space-y-2">
@@ -309,8 +310,7 @@ export default function PainelSample({ acao, nome, onMudar }: Props) {
         </div>
 
         <p className="mt-2 text-xs text-neutral-500">
-          A liberação só aparece no modo que toca enquanto está apertado: é o
-          tempo que o som leva para sumir depois que você solta.
+          {t("A liberação só aparece no modo que toca enquanto está apertado: é o tempo que o som leva para sumir depois que você solta.")}
         </p>
       </div>
     </div>
@@ -349,7 +349,7 @@ function Tempo({
   return (
     <div className="flex items-center gap-2">
       <label className="w-24 shrink-0 text-xs text-neutral-600 dark:text-neutral-400">
-        {rotulo}
+        {t(rotulo)}
       </label>
       <input
         type="range"
@@ -394,7 +394,7 @@ function Deslizante({
   return (
     <div className="flex items-center gap-2">
       <label className="w-24 shrink-0 text-xs text-neutral-600 dark:text-neutral-400">
-        {rotulo}
+        {t(rotulo)}
       </label>
       <input
         type="range"
